@@ -109,7 +109,7 @@ pip install -r requirements.txt
 
 Launch the FastAPI environment physics engine:
 ```bash
-uvicorn src.server:app --host 0.0.0.0 --port 8000
+uvicorn src.server:app --host 0.0.0.0 --port 7860
 ```
 
 ### 3. Run the Baseline Agent
@@ -127,7 +127,7 @@ python inference.py
 The environment is fully containerized and ready for HF Spaces validation.
 ```bash
 docker build -t openenv-logistics .
-docker run -p 8000:8000 openenv-logistics
+docker run -p 7860:7860 openenv-logistics
 ```
 
 ---
