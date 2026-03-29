@@ -1,0 +1,29 @@
+spec_version: "1.0"
+name: "global-logistics-dispatcher"
+version: "1.0.0"
+description: "A real-world supply chain simulator. Agents must dynamically route global freight while navigating budget constraints, strict delivery deadlines, and random weather disruptions."
+author: "Preet"
+license: "MIT"
+
+# The OpenEnv automated validator looks for these HTTP endpoints
+entrypoint:
+  type: http
+  endpoints:
+    reset: "/reset"
+    step: "/step"
+    state: "/state"
+
+# CRITICAL: The validation bot explicitly parses this block
+tasks:
+  - name: "easy"
+    description: "Route standard cargo globally without perishability constraints."
+  - name: "medium"
+    description: "Manage a mix of standard cargo and perishable cargo with strict shelf-life deadlines."
+  - name: "hard"
+    description: "Optimize consolidation and cold-chain routing amidst severe port strikes and global disruptions."
+
+# Hackathon specific metadata
+tags:
+  - "logistics"
+  - "resource-allocation"
+  - "planning"

@@ -1,0 +1,67 @@
+{
+  "nodes": [
+    {"id": "INBOM", "name": "Mumbai (JNPT/BOM)", "type": "hub", "region": "Asia"},
+    {"id": "SGSIN", "name": "Singapore Port", "type": "transshipment", "region": "Asia"},
+    {"id": "AEDXB", "name": "Dubai Intl", "type": "hub", "region": "ME"},
+    {"id": "NLRTM", "name": "Port of Rotterdam", "type": "hub", "region": "Europe"},
+    {"id": "USLAX", "name": "Los Angeles", "type": "destination", "region": "North America"},
+    {"id": "USNYC", "name": "New York", "type": "destination", "region": "North America"}
+  ],
+  "edges": [
+    {
+      "edge_id": "LANE-001",
+      "source": "INBOM",
+      "target": "SGSIN",
+      "mode": "ocean",
+      "carrier": "Maersk",
+      "cost_per_kg": 1.2,
+      "transit_days": 5,
+      "capacity_kg": 50000,
+      "supports_reefer": true
+    },
+    {
+      "edge_id": "LANE-002",
+      "source": "INBOM",
+      "target": "AEDXB",
+      "mode": "air",
+      "carrier": "Emirates SkyCargo",
+      "cost_per_kg": 8.5,
+      "transit_days": 1,
+      "capacity_kg": 5000,
+      "supports_reefer": true
+    },
+    {
+      "edge_id": "LANE-003",
+      "source": "SGSIN",
+      "target": "USLAX",
+      "mode": "ocean",
+      "carrier": "MSC",
+      "cost_per_kg": 2.5,
+      "transit_days": 15,
+      "capacity_kg": 100000,
+      "supports_reefer": false
+    },
+    {
+      "edge_id": "LANE-004",
+      "source": "AEDXB",
+      "target": "USLAX",
+      "mode": "air",
+      "carrier": "FedEx",
+      "cost_per_kg": 12.0,
+      "transit_days": 2,
+      "capacity_kg": 2000,
+      "supports_reefer": true
+    },
+    {
+      "edge_id": "LANE-005",
+      "source": "SGSIN",
+      "target": "NLRTM",
+      "mode": "ocean",
+      "carrier": "Hapag-Lloyd",
+      "cost_per_kg": 1.8,
+      "transit_days": 22,
+      "capacity_kg": 80000,
+      "supports_reefer": true
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+[
+  {
+    "carrier_name": "Oceanic Freight Co",
+    "mode": "ocean",
+    "base_cost_per_kg": 2.50,
+    "base_transit_days": 18
+  },
+  {
+    "carrier_name": "FastAir Logistics",
+    "mode": "air",
+    "base_cost_per_kg": 15.00,
+    "base_transit_days": 3
+  },
+  {
+    "carrier_name": "Global Rail Express",
+    "mode": "rail",
+    "base_cost_per_kg": 5.00,
+    "base_transit_days": 10
+  }
+]

@@ -1,0 +1,8 @@
+[
+  {"id": "JNPT", "name": "Nhava Sheva Sea Port", "type": "seaport", "region": "South Asia"},
+  {"id": "BOM", "name": "Chhatrapati Shivaji Int. Airport", "type": "airport", "region": "South Asia"},
+  {"id": "LAX", "name": "Los Angeles Int. Airport", "type": "airport", "region": "North America"},
+  {"id": "LGB", "name": "Port of Long Beach", "type": "seaport", "region": "North America"},
+  {"id": "SGP", "name": "Port of Singapore", "type": "seaport", "region": "Southeast Asia"},
+  {"id": "FRA", "name": "Frankfurt Airport", "type": "airport", "region": "Europe"}
+]
