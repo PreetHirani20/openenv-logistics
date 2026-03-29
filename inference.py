@@ -9,14 +9,14 @@ from openai import OpenAI
 # We set defaults here so you can still test it locally with Gemini.
 API_BASE_URL = os.getenv("API_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai/")
 MODEL_NAME = os.getenv("MODEL_NAME", "gemini-2.5-flash")
-API_KEY = os.getenv("OPENAI_API_KEY", "YOUR_GEMINI_API_KEY_HERE") # Put your key here for local testing
+API_KEY = os.getenv("OPENAI_API_KEY", "YOUR_GEMINI_API_KEY_HERE")
 
 client = OpenAI(
     api_key=API_KEY,
     base_url=API_BASE_URL,
 )
 
-API_URL = "http://localhost:8000"
+API_URL = os.getenv("API_URL", "http://localhost:7860")
 
 def get_action_from_llm(observation):
     prompt = f"""
