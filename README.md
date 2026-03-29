@@ -100,8 +100,8 @@ The environment features a deterministic mathematical grader that returns a stri
 
 Clone the repository and install the dependencies:
 ```bash
-git clone https://github.com/PreetHirani20/global-logistics-dispatcher.git
-cd global-logistics-dispatcher
+git clone https://github.com/PreetHirani20/openenv-logistics.git
+cd openenv-logistics
 pip install -r requirements.txt
 ```
 
