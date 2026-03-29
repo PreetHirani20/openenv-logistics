@@ -5,9 +5,14 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "openenv-logistics"
 version = "1.0.0"
-description = "Global Logistics Dispatcher for OpenEnv"
-authors = [
-    { name = "Preet", email = "preet@example.com" }
-]
+description = "Global Logistics Dispatcher"
 readme = "README.md"
 requires-python = ">=3.11"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "openenv-core>=0.2.0"
+]
+
+[project.scripts]
+server = "server.app:app"
