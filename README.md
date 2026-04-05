@@ -1,11 +1,3 @@
----
-title: OpenEnv Logistics
-emoji: 🌍
-colorFrom: blue
-colorTo: green
-sdk: docker
-pinned: false
----
 # 🌍 Global Logistics Dispatcher (OpenEnv)
 
 [![OpenEnv Compliant](https://img.shields.io/badge/OpenEnv-1.0-blue.svg)]()
