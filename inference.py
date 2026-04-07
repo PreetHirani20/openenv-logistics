@@ -6,19 +6,23 @@ from openai import OpenAI
 
 # --- OPENENV REQUIRED VARIABLES ---
 # The hackathon validator will inject these variables automatically.
-# We set defaults here so you can still test it locally with Gemini.
-API_BASE_URL = os.getenv("API_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai/")
-MODEL_NAME = os.getenv("MODEL_NAME", "gemini-2.5-flash")
-API_KEY = os.getenv("OPENAI_API_KEY", "YOUR_GEMINI_API_KEY_HERE")
+MODEL_NAME = os.getenv("MODEL_NAME", "gpt-4o-mini") # Standard OpenAI model
+API_KEY = os.getenv("OPENAI_API_KEY", "YOUR_OPENAI_API_KEY_HERE")
 
-client = OpenAI(
-    api_key=API_KEY,
-    base_url=API_BASE_URL,
-)
+# If the grader provides a custom base URL (like an enterprise proxy), use it.
+# Otherwise, default to standard OpenAI API.
+API_BASE_URL = os.getenv("API_BASE_URL") 
+
+if API_BASE_URL:
+    client = OpenAI(api_key=API_KEY, base_url=API_BASE_URL)
+else:
+    client = OpenAI(api_key=API_KEY)
 
 API_URL = os.getenv("API_URL", "http://localhost:7860")
 
-def get_action_from_llm(observation):
+# ... (The rest of your functions stay exactly the same)
+
+def get_action_from_llm(observation, max_retries=3):
     prompt = f"""
     You are a Master Logistics AI.
     Goal: Deliver all cargo at the lowest Cost and Carbon Footprint WITHOUT spoilage.
@@ -40,34 +44,61 @@ def get_action_from_llm(observation):
     }}
     """
     
-    response = client.chat.completions.create(
-        model=MODEL_NAME,
-        messages=[{"role": "user", "content": prompt}],
-        response_format={"type": "json_object"}
-    )
-    return json.loads(response.choices[0].message.content)
+    for attempt in range(max_retries):
+        try:
+            response = client.chat.completions.create(
+                model=MODEL_NAME,
+                messages=[{"role": "user", "content": prompt}],
+                response_format={"type": "json_object"}
+            )
+            return json.loads(response.choices[0].message.content)
+        except Exception as e:
+            print(f"⚠️ LLM or Parsing Error (Attempt {attempt + 1}/{max_retries}): {e}")
+            time.sleep(3) # Wait before retrying
+            
+    # If all retries fail, return a safe fallback action so the script DOES NOT crash
+    print("🚨 All retries failed. Returning safe fallback action.")
+    return {
+        "thought_process": "Fallback due to API error.",
+        "action_type": "wait",
+        "shipment_ids": [],
+        "target_edge_id": ""
+    }
 
 def run_task(task_name):
     print(f"\n🚀 Starting Task: {task_name.upper()}...")
-    resp = requests.post(f"{API_URL}/reset?task={task_name}")
-    obs = resp.json()
+    try:
+        resp = requests.post(f"{API_URL}/reset?task={task_name}")
+        resp.raise_for_status()
+        obs = resp.json()
+    except Exception as e:
+        print(f"❌ Failed to reset environment for {task_name}: {e}")
+        return # Skip this task, but don't crash the script
+        
     done = False
     
     while not done:
         action = get_action_from_llm(obs)
-        print(f"[{task_name.upper()}] Day {obs['current_day']} | Action: {action['action_type']} for {action.get('shipment_ids')}")
+        time.sleep(4)
+        print(f"[{task_name.upper()}] Day {obs.get('current_day', '?')} | Action: {action.get('action_type')} for {action.get('shipment_ids')}")
         
-        step_resp = requests.post(f"{API_URL}/step", json=action)
-        if step_resp.status_code != 200:
-            break
+        try:
+            step_resp = requests.post(f"{API_URL}/step", json=action)
+            step_resp.raise_for_status()
+            data = step_resp.json()
+            obs = data['observation']
+            done = data['done']
+        except Exception as e:
+            print(f"❌ Network/Environment error during step: {e}")
+            break # Exit the loop safely without crashing the script
             
-        data = step_resp.json()
-        obs = data['observation']
-        done = data['done']
         time.sleep(4) # Rate limit protection
 
-    grade_resp = requests.get(f"{API_URL}/grade").json()
-    print(f"🏁 Final Score for {task_name.upper()}: {grade_resp.get('score', 0.0)} / 1.0")
+    try:
+        grade_resp = requests.get(f"{API_URL}/grade").json()
+        print(f"🏁 Final Score for {task_name.upper()}: {grade_resp.get('score', 0.0)} / 1.0")
+    except Exception as e:
+        print(f"❌ Failed to fetch grade: {e}")
 
 if __name__ == "__main__":
     # OpenEnv requires testing on all 3 difficulties

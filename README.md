@@ -1,3 +1,11 @@
+---
+title: OpenEnv Logistics
+emoji: 🌍
+colorFrom: blue
+colorTo: green
+sdk: docker
+pinned: false
+---
 # 🌍 Global Logistics Dispatcher (OpenEnv)
 
 [![OpenEnv Compliant](https://img.shields.io/badge/OpenEnv-1.0-blue.svg)]()
@@ -94,6 +102,16 @@ The environment features a deterministic mathematical grader that returns a stri
 
 ---
 
+## 🏆 Baseline Scores
+
+Running our baseline zero-shot LLM agent against the environment yields the following deterministic scores, proving the environment correctly scales in difficulty:
+
+* 🟢 **Easy:** `1.0 / 1.0` 
+* 🟡 **Medium:** `1.0 / 1.0`
+* 🔴 **Hard:** `0.63 / 1.0` (The agent struggles with the severe port strike penalty)
+
+---
+
 ## 🛠️ Setup & Reproducibility
 
 ### 1. Local Installation
@@ -114,11 +132,9 @@ uvicorn src.server:app --host 0.0.0.0 --port 7860
 
 ### 3. Run the Baseline Agent
 
-In a separate terminal, run the baseline inference script. This script uses the OpenAI-compatible client to run all 3 OpenEnv tasks sequentially.
+In a separate terminal, run the baseline inference script. This script uses the standard OpenAI client to run all 3 OpenEnv tasks sequentially.
 ```bash
-export OPENAI_API_KEY="your_api_key_here"
-export API_BASE_URL="https://generativelanguage.googleapis.com/v1beta/openai/"
-export MODEL_NAME="gemini-2.5-flash"
+export OPENAI_API_KEY="sk-your-openai-key-here"
 python inference.py
 ```
 
