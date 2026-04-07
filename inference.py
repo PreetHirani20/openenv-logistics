@@ -4,23 +4,21 @@ import json
 import time
 from openai import OpenAI
 
-# --- OPENENV REQUIRED VARIABLES ---
-# The hackathon validator will inject these variables automatically.
-MODEL_NAME = os.getenv("MODEL_NAME", "gpt-4o-mini") # Standard OpenAI model
-API_KEY = os.getenv("OPENAI_API_KEY", "YOUR_OPENAI_API_KEY_HERE")
+# --- 1. STRICT CHECKLIST COMPLIANCE: ENVIRONMENT VARIABLES ---
+API_BASE_URL = os.getenv("API_BASE_URL", "https://api.openai.com/v1")
+MODEL_NAME = os.getenv("MODEL_NAME", "gpt-4o-mini")
+HF_TOKEN = os.getenv("HF_TOKEN") # CRITICAL: No default value here per checklist
 
-# If the grader provides a custom base URL (like an enterprise proxy), use it.
-# Otherwise, default to standard OpenAI API.
-API_BASE_URL = os.getenv("API_BASE_URL") 
+# Hackathon uses HF_TOKEN, but we keep a local fallback so you can still test it
+api_key = HF_TOKEN or os.getenv("OPENAI_API_KEY", "YOUR_API_KEY_HERE")
 
-if API_BASE_URL:
-    client = OpenAI(api_key=API_KEY, base_url=API_BASE_URL)
-else:
-    client = OpenAI(api_key=API_KEY)
+# --- 2. STRICT CHECKLIST COMPLIANCE: OPENAI CLIENT ---
+client = OpenAI(
+    api_key=api_key,
+    base_url=API_BASE_URL,
+)
 
 API_URL = os.getenv("API_URL", "http://localhost:7860")
-
-# ... (The rest of your functions stay exactly the same)
 
 def get_action_from_llm(observation, max_retries=3):
     prompt = f"""
@@ -53,11 +51,8 @@ def get_action_from_llm(observation, max_retries=3):
             )
             return json.loads(response.choices[0].message.content)
         except Exception as e:
-            print(f"⚠️ LLM or Parsing Error (Attempt {attempt + 1}/{max_retries}): {e}")
-            time.sleep(3) # Wait before retrying
+            time.sleep(3)
             
-    # If all retries fail, return a safe fallback action so the script DOES NOT crash
-    print("🚨 All retries failed. Returning safe fallback action.")
     return {
         "thought_process": "Fallback due to API error.",
         "action_type": "wait",
@@ -66,21 +61,25 @@ def get_action_from_llm(observation, max_retries=3):
     }
 
 def run_task(task_name):
-    print(f"\n🚀 Starting Task: {task_name.upper()}...")
+    # --- 3. STRICT CHECKLIST COMPLIANCE: START LOG ---
+    print(f"START task={task_name}")
+    
     try:
         resp = requests.post(f"{API_URL}/reset?task={task_name}")
         resp.raise_for_status()
         obs = resp.json()
     except Exception as e:
-        print(f"❌ Failed to reset environment for {task_name}: {e}")
-        return # Skip this task, but don't crash the script
+        print(f"END task={task_name} score=0.0")
+        return
         
     done = False
+    step_count = 0
     
     while not done:
         action = get_action_from_llm(obs)
-        time.sleep(4)
-        print(f"[{task_name.upper()}] Day {obs.get('current_day', '?')} | Action: {action.get('action_type')} for {action.get('shipment_ids')}")
+        
+        # --- 4. STRICT CHECKLIST COMPLIANCE: STEP LOG ---
+        print(f"STEP step={step_count} action={action.get('action_type')}")
         
         try:
             step_resp = requests.post(f"{API_URL}/step", json=action)
@@ -89,18 +88,20 @@ def run_task(task_name):
             obs = data['observation']
             done = data['done']
         except Exception as e:
-            print(f"❌ Network/Environment error during step: {e}")
-            break # Exit the loop safely without crashing the script
+            break 
             
-        time.sleep(4) # Rate limit protection
+        step_count += 1
+        time.sleep(4)
 
     try:
         grade_resp = requests.get(f"{API_URL}/grade").json()
-        print(f"🏁 Final Score for {task_name.upper()}: {grade_resp.get('score', 0.0)} / 1.0")
-    except Exception as e:
-        print(f"❌ Failed to fetch grade: {e}")
+        score = grade_resp.get('score', 0.0)
+    except Exception:
+        score = 0.0
+
+    # --- 5. STRICT CHECKLIST COMPLIANCE: END LOG ---
+    print(f"END task={task_name} score={score}")
 
 if __name__ == "__main__":
-    # OpenEnv requires testing on all 3 difficulties
     for task in ["easy", "medium", "hard"]:
         run_task(task)
