@@ -77,7 +77,7 @@ def run_task(task_name):
         obs = resp.json()
     except Exception as e:
         # FIX: Added literal brackets [END]
-        print(f"[END] task={task_name} score=0.0 steps=0", flush=True)
+        print(f"[END] task={task_name} score=0.001 steps=0", flush=True)
         return
         
     done = False
@@ -96,7 +96,7 @@ def run_task(task_name):
             done = data['done']
             
             # FIX: Added literal brackets [STEP] and the 'reward' metric
-            print(f"[STEP] step={step_count} action={action.get('action_type')} reward={reward}", flush=True)
+            print(f"[STEP] step={step_count} action={action.get('action_type')} reward={reward:.2f} done={str(done).lower()} error=null", flush=True)
             
         except Exception as e:
             break 
@@ -105,13 +105,15 @@ def run_task(task_name):
 
     try:
         grade_resp = requests.get(f"{API_URL}/grade", timeout=10.0).json()
-        score = grade_resp.get('score', 0.0)
+        score = grade_resp.get('score', 0.001)
     except Exception:
-        score = 0.0
+        score = 0.001
 
-    # FIX: Added literal brackets [END] and the 'steps' metric
+    # Clamp score to open interval just before printing
+    score = max(0.001, min(0.999, float(score)))
     total_steps = step_count - 1
-    print(f"[END] task={task_name} score={score} steps={total_steps}", flush=True)
+    success = score > 0.5  # define your own threshold
+    print(f"[END] task={task_name} score={score:.4f} steps={total_steps} success={str(success).lower()}", flush=True)
 
 if __name__ == "__main__":
     for _ in range(15):

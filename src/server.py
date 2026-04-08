@@ -45,4 +45,6 @@ async def get_grade():
     state = env.state()
     state["carbon_footprint_kg"] = getattr(env, 'carbon_footprint', 0.0)
     score = grader.evaluate(state)
+    # Defense-in-depth: enforce open interval at the HTTP boundary
+    score = round(max(0.001, min(0.999, score)), 4)
     return {"score": score}
